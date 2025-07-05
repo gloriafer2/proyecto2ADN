@@ -2,97 +2,103 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package proyectoadn;
 
-/**
- *
- * @author Gloria
- */
 public class Aminoacido {
-    private String nombre;
-    private String tipo; // "Inicio", "Parada", "Aminoacido Valido"
-    private String[] codonesARN; // Las tripletas de ARN asociadas, ej. "UUU", "UUC"
-    private int numCodones; // Contador de codones reales en el array
+    private String nombreCompleto;
+    private String abreviatura3Letras;
+    private char abreviatura1Letra;
+    
+    private String tipo; 
 
-    /**
-     * Constructor de la clase Aminoacido.
-     * @param nombre El nombre completo del aminoácido (ej. "Fenilalanina").
-     * @param tipo El tipo de codón (ej. "Aminoacido Valido", "Inicio", "Parada").
-     */
-    public Aminoacido(String nombre, String tipo) {
-        this.nombre = nombre;
-        this.tipo = tipo;
-        // Inicializamos el array de codones ARN con un tamaño inicial.
-        // Se redimensionará si es necesario.
-        this.codonesARN = new String[5]; // Un aminoácido puede tener hasta 6 codones.
-        this.numCodones = 0;
-    }
+    private String[] codonesAsociados;
+    private int numCodones;
 
-    /**
-     * Agrega un codón ARN a la lista de codones que sintetizan este aminoácido.
-     * Si el array de codones está lleno, se redimensiona.
-     * @param codon La secuencia del codón ARN (ej. "UUU").
-     */
-    public void agregarCodon(String codon) {
-        if (numCodones == codonesARN.length) {
-            // Redimensionar array si está lleno
-            String[] nuevoArray = new String[codonesARN.length * 2];
-            for (int i = 0; i < codonesARN.length; i++) {
-                nuevoArray[i] = codonesARN[i];
-            }
-            codonesARN = nuevoArray;
+    private int frecuenciaGlobal;
+
+    public Aminoacido(String nombreCompleto, String abreviatura3Letras, char abreviatura1Letra) {
+        this.nombreCompleto = nombreCompleto;
+        this.abreviatura3Letras = abreviatura3Letras;
+        this.abreviatura1Letra = abreviatura1Letra;
+        
+        if (nombreCompleto.equals("STOP")) {
+            this.tipo = "Parada";
+        } else if (nombreCompleto.equals("Metionina")) {
+            this.tipo = "Inicio";
+        } else {
+            this.tipo = "Aminoacido Valido";
         }
-        codonesARN[numCodones++] = codon;
+
+        this.codonesAsociados = new String[5];
+        this.numCodones = 0;
+        this.frecuenciaGlobal = 0;
     }
 
-    /**
-     * Obtiene el nombre del aminoácido.
-     * @return El nombre del aminoácido.
-     */
-    public String getNombre() {
-        return nombre;
+    public void agregarCodonAsociado(String codon) {
+        for (int i = 0; i < numCodones; i++) {
+            if (codonesAsociados[i] != null && codonesAsociados[i].equals(codon)) {
+                return;
+            }
+        }
+
+        if (numCodones == codonesAsociados.length) {
+            String[] nuevoArray = new String[codonesAsociados.length * 2];
+            System.arraycopy(codonesAsociados, 0, nuevoArray, 0, codonesAsociados.length);
+            codonesAsociados = nuevoArray;
+        }
+        codonesAsociados[numCodones++] = codon;
     }
 
-    /**
-     * Obtiene el tipo de aminoácido/codón.
-     * @return El tipo (ej. "Aminoacido Valido", "Inicio", "Parada").
-     */
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public String getAbreviatura3Letras() {
+        return abreviatura3Letras;
+    }
+
+    public char getAbreviatura1Letra() {
+        return abreviatura1Letra;
+    }
+
     public String getTipo() {
         return tipo;
     }
 
-    /**
-     * Obtiene el array de codones ARN asociados a este aminoácido.
-     * @return Un array de cadenas que contiene los codones ARN.
-     */
-    public String[] getCodonesARN() {
-        return codonesARN;
+    public String[] getTodosLosCodonesAsociados() {
+        String[] result = new String[numCodones];
+        System.arraycopy(codonesAsociados, 0, result, 0, numCodones);
+        return result;
     }
 
-    /**
-     * Obtiene el número de codones ARN actualmente almacenados.
-     * @return El número de codones.
-     */
     public int getNumCodones() {
         return numCodones;
     }
+    
+    public void incrementarFrecuenciaGlobal(int cantidad) {
+        this.frecuenciaGlobal += cantidad;
+    }
 
-    /**
-     * Devuelve una representación en cadena de este Aminoacido,
-     * incluyendo su nombre, tipo y los codones ARN asociados.
-     * @return Una cadena que representa el Aminoacido.
-     */
+    public int getFrecuenciaGlobal() {
+        return frecuenciaGlobal;
+    }
+
     @Override
     public String toString() {
         StringBuilder codonesStr = new StringBuilder();
         codonesStr.append("[");
         for (int i = 0; i < numCodones; i++) {
-            codonesStr.append(codonesARN[i]);
+            codonesStr.append(codonesAsociados[i]);
             if (i < numCodones - 1) {
                 codonesStr.append(", ");
             }
         }
         codonesStr.append("]");
-        return "Aminoacido: " + nombre + " (Tipo: " + tipo + "), Codones ARN: " + codonesStr.toString();
+        return "Aminoacido: " + nombreCompleto + 
+               " (Abrev: " + abreviatura3Letras + " / " + abreviatura1Letra + 
+               ", Tipo: " + tipo + 
+               ", Frecuencia: " + frecuenciaGlobal + 
+               "), Codones ARN: " + codonesStr.toString();
     }
 }

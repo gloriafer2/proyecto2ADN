@@ -8,16 +8,4 @@ package proyectoadn;
  *
  * @author Gloria
  */
-class HashEntry {
-    PatronADN patron;       // El patrón de ADN almacenado en esta entrada
-    HashEntry siguiente;    // Referencia a la siguiente entrada en caso de colisión
 
-    /**
-     * Constructor de HashEntry.
-     * @param patron El objeto PatronADN a almacenar en esta entrada.
-     */
-    public HashEntry(PatronADN patron) {
-        this.patron = patron;
-        this.siguiente = null; // Al principio, no hay siguiente
-    }
-}

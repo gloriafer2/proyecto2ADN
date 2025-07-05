@@ -8,155 +8,128 @@ package proyectoadn;
  *
  * @author Gloria
  */
+
+
+class HashEntry {
+    String clave;
+    Object valor; 
+    HashEntry siguiente;
+
+    public HashEntry(String clave, Object valor) {
+        this.clave = clave;
+        this.valor = valor;
+        this.siguiente = null;
+    }
+}
+
 public class MiHashTable {
-    private HashEntry[] tabla; 
-    private int capacidad; 
-    private int tamanoActual; 
+    private HashEntry[] tabla;
+    private int tamano; 
+    private int cantidadElementos; 
     private int colisionesRegistradas; 
-    private String[] reporteColisionesDetallado; 
-    private int numReportesColisionDetallado; 
 
-    /**
-     * Constructor de MiHashTable.
-     * @param capacidadInicial La capacidad inicial de la tabla hash.
-     */
     public MiHashTable(int capacidadInicial) {
-        this.capacidad = capacidadInicial;
-        this.tabla = new HashEntry[capacidad]; 
-        this.tamanoActual = 0;
+        this.tabla = new HashEntry[capacidadInicial];
+        this.tamano = capacidadInicial;
+        this.cantidadElementos = 0;
         this.colisionesRegistradas = 0;
-        this.reporteColisionesDetallado = new String[50]; 
-        this.numReportesColisionDetallado = 0;
     }
 
-    /**
-     * Calcula el índice (la posición) en la tabla hash para una clave (secuencia de ADN) dada.
-     * Usamos el número de "carnet" (hashCode) de la secuencia y el operador % (módulo)
-     * para asegurarnos de que el índice esté dentro de los límites de nuestra tabla.
-     * @param clave La secuencia del patrón (String) para la cual calcular el índice.
-     * @return El índice calculado en la tabla.
-     */
-    private int calcularIndice(String clave) {
-        
-        return (clave.hashCode() & 0x7fffffff) % capacidad;
-    }
-
-    /**
-     * Inserta o actualiza un PatronADN en la tabla hash.
-     * Si el patrón ya existe, incrementa su frecuencia y agrega la ubicación.
-     * Si no existe, lo añade como un nuevo PatronADN.
-     * También registra las colisiones.
-     * @param nuevoPatron El objeto PatronADN a insertar/actualizar.
-     * @param ubicacion La ubicación en la secuencia principal de ADN.
-     * @return true si se añadió un nuevo patrón, false si se actualizó uno existente.
-     */
-    public boolean insertarOActualizar(PatronADN nuevoPatron, int ubicacion) {
-        int indice = calcularIndice(nuevoPatron.getSecuencia()); 
-        HashEntry cabeza = tabla[indice]; 
-
-        HashEntry actual = cabeza;
-        
-        while (actual != null) {
-            if (actual.patron.getSecuencia().equals(nuevoPatron.getSecuencia())) {
-                
-               
-                actual.patron.incrementarFrecuencia();
-                actual.patron.agregarUbicacion(ubicacion);
-                return false; 
-            }
-            actual = actual.siguiente; 
+    private int hash(String clave) {
+        int hash = 0;
+        for (char c : clave.toCharArray()) {
+            hash = (hash * 31 + c) % tamano;
         }
-
-        
-        HashEntry nuevoEntry = new HashEntry(nuevoPatron); 
-        nuevoEntry.siguiente = cabeza; 
-        tabla[indice] = nuevoEntry; 
-        tamanoActual++; 
-
-        if (cabeza != null) {
-            colisionesRegistradas++; 
-
-         
-            if (numReportesColisionDetallado == reporteColisionesDetallado.length) {
-                String[] nuevoReporte = new String[reporteColisionesDetallado.length * 2];
-                for (int i = 0; i < reporteColisionesDetallado.length; i++) {
-                    nuevoReporte[i] = reporteColisionesDetallado[i];
-                }
-                reporteColisionesDetallado = nuevoReporte;
-            }
-            reporteColisionesDetallado[numReportesColisionDetallado++] =
-                "Colisión en índice " + indice + ": Nuevo patrón '" + nuevoPatron.getSecuencia() +
-                "' colisionó con el patrón existente '" + cabeza.patron.getSecuencia() + "'";
-        }
-        return true;
+        return Math.abs(hash);
     }
 
-    /**
-     * Busca un PatronADN en la tabla hash por su secuencia (clave).
-     * @param secuencia La secuencia (clave) del patrón a buscar.
-     * @return El objeto PatronADN si se encuentra, o null si no existe.
-     * La complejidad promedio de esta operación es O(1) (muy rápida).
-     */
-    public PatronADN buscar(String secuencia) {
-        int indice = calcularIndice(secuencia); 
-        HashEntry actual = tabla[indice]; 
+    public void insertar(String clave, Object valor) {
+        int indice = hash(clave);
+        HashEntry nuevoEntry = new HashEntry(clave, valor);
 
-             while (actual != null) {
-            if (actual.patron.getSecuencia().equals(secuencia)) {
-                return actual.patron; 
-            }
-            actual = actual.siguiente; 
-        }
-        return null; 
-    }
-
-    /**
-     * Obtiene todos los PatronADN distintos almacenados en la tabla hash.
-     * @return Un array de PatronADN que contiene todos los patrones distintos.
-     */
-    public PatronADN[] obtenerTodosLosPatrones() {
-      
-        PatronADN[] todosLosPatrones = new PatronADN[tamanoActual];
-        int contador = 0; 
-
-       
-        for (int i = 0; i < capacidad; i++) {
-            HashEntry actual = tabla[i]; 
-            while (actual != null) {
-                if (contador < tamanoActual) { 
-                    todosLosPatrones[contador++] = actual.patron;
-                }
-                actual = actual.siguiente; 
-            }
-        }
-        return todosLosPatrones; 
-    }
-
-    /**
-     * Obtiene el número total de colisiones registradas.
-     * @return El número de colisiones.
-     */
-    public int getColisionesRegistradas() {
-        return colisionesRegistradas;
-    }
-
-    /**
-     * Genera un reporte detallado de las colisiones ocurridas.
-     * Indica los patrones que, siendo tripletas distintas, generaron colisiones.
-     * @return Una cadena con el reporte de colisiones.
-     */
-    public String obtenerReporteColisionesDetallado() {
-        StringBuilder sb = new StringBuilder(); 
-        if (colisionesRegistradas == 0) {
-            sb.append("No se registraron colisiones.");
+        if (tabla[indice] == null) {
+            tabla[indice] = nuevoEntry;
+            cantidadElementos++;
         } else {
-            sb.append("--- Reporte Detallado de Colisiones ---\n");
-          
-            for (int i = 0; i < numReportesColisionDetallado; i++) {
-                sb.append(reporteColisionesDetallado[i]).append("\n"); 
+            HashEntry actual = tabla[indice];
+            while (actual != null) {
+                if (actual.clave.equals(clave)) {
+                    actual.valor = valor; 
+                    return; 
+                }
+                actual = actual.siguiente;
             }
-            sb.append("Total de colisiones registradas: ").append(colisionesRegistradas);
+            
+            
+            nuevoEntry.siguiente = tabla[indice];
+            tabla[indice] = nuevoEntry;
+            cantidadElementos++;
+            colisionesRegistradas++; 
         }
-        return sb.toString();
+    }
+
+    public Object buscar(String clave) {
+        int indice = hash(clave);
+        HashEntry actual = tabla[indice];
+        while (actual != null) {
+            if (actual.clave.equals(clave)) {
+                return actual.valor;
+            }
+            actual = actual.siguiente;
+        }
+        return null;
+    }
+    
+    public Object[] getTodosLosValores() {
+        int count = 0;
+        for (int i = 0; i < tabla.length; i++) {
+            HashEntry current = tabla[i];
+            while (current != null) {
+                count++;
+                current = current.siguiente;
+            }
+        }
+
+        Object[] valores = new Object[count];
+        int index = 0;
+        for (int i = 0; i < tabla.length; i++) {
+            HashEntry current = tabla[i];
+            while (current != null) {
+                if (index < valores.length) { 
+                    valores[index++] = current.valor;
+                }
+                current = current.siguiente;
+            }
+        }
+        return valores;
+    }
+
+    public String getReporteColisiones() {
+        StringBuilder reporte = new StringBuilder("Reporte de Colisiones de MiHashTable:\n");
+        reporte.append("--------\n");
+        int celdasOcupadas = 0;
+        int colisionesTotal = 0;
+
+        for (int i = 0; i < tabla.length; i++) {
+            if (tabla[i] != null) {
+                celdasOcupadas++;
+                int colisionesEnCelda = 0;
+                HashEntry actual = tabla[i].siguiente; 
+                while (actual != null) {
+                    colisionesEnCelda++;
+                    actual = actual.siguiente;
+                }
+                if (colisionesEnCelda > 0) {
+                    reporte.append("Celda ").append(i).append(": ").append(colisionesEnCelda).append(" colision(es)\n");
+                    colisionesTotal += colisionesEnCelda;
+                }
+            }
+        }
+        reporte.append("-----\n");
+        reporte.append("Tamaño total de la tabla: ").append(tabla.length).append("\n");
+        reporte.append("Celdas ocupadas: ").append(celdasOcupadas).append("\n");
+        reporte.append("Total de colisiones registradas: ").append(colisionesTotal).append("\n");
+        reporte.append("Número total de elementos almacenados: ").append(cantidadElementos).append("\n");
+        return reporte.toString();
     }
 }
