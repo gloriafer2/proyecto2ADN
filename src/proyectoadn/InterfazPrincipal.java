@@ -4,17 +4,23 @@
  */
 package proyectoadn;
 
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFileChooser; 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Gloria
  */
 public class InterfazPrincipal extends javax.swing.JFrame {
-
-    /**
-     * Creates new form InterfazPrincipal
-     */
+    private Modelo modelo;
+    
     public InterfazPrincipal() {
         initComponents();
+        modelo = new Modelo(); 
+        
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -71,6 +77,11 @@ public class InterfazPrincipal extends javax.swing.JFrame {
         });
 
         btnPatronesFrecuencia.setText("Patrones por Frecuencia");
+        btnPatronesFrecuencia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPatronesFrecuenciaActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Buscar Patrón");
 
@@ -160,15 +171,32 @@ public class InterfazPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCargarADNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarADNActionPerformed
-        // TODO add your handling code here:
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Seleccionar Archivo de Secuencia de ADN");
+    int userSelection = fileChooser.showOpenDialog(this);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File archivoSeleccionado = fileChooser.getSelectedFile();
+        try {
+            modelo.cargarSecuenciaADN(archivoSeleccionado);
+            JOptionPane.showMessageDialog(this, "Secuencia de ADN cargada y procesada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+           
+            txtAreaReporte.setText("Secuencia procesada. Use los botones para generar reportes.");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + ex.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) { 
+            JOptionPane.showMessageDialog(this, "Error durante el procesamiento de la secuencia: " + ex.getMessage(), "Error de Procesamiento", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace(); 
+        }
+    }
     }//GEN-LAST:event_btnCargarADNActionPerformed
 
     private void btnReporteColisionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteColisionesActionPerformed
-        // TODO add your handling code here:
+        txtAreaReporte.setText(modelo.generarReporteColisiones());
     }//GEN-LAST:event_btnReporteColisionesActionPerformed
 
     private void btnReporteAminoacidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReporteAminoacidosActionPerformed
-        // TODO add your handling code here:
+        txtAreaReporte.setText(modelo.generarReporteAminoacidos());
     }//GEN-LAST:event_btnReporteAminoacidosActionPerformed
 
     private void txtBuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarPatronActionPerformed
@@ -178,6 +206,20 @@ public class InterfazPrincipal extends javax.swing.JFrame {
     private void btnBuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarPatronActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnBuscarPatronActionPerformed
+
+    private void btnPatronesFrecuenciaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPatronesFrecuenciaActionPerformed
+        StringBuilder sb = new StringBuilder("Reporte de Patrones por Frecuencia:\n");
+    sb.append("--------------------\n");
+    PatronADN[] patronesOrdenados = modelo.getPatronesOrdenadosPorFrecuencia();
+    if (patronesOrdenados != null && patronesOrdenados.length > 0) {
+        for (PatronADN p : patronesOrdenados) {
+            sb.append(p.toString()).append("\n"); 
+        }
+    } else {
+        sb.append("No hay patrones procesados.\n");
+    }
+    txtAreaReporte.setText(sb.toString());
+    }//GEN-LAST:event_btnPatronesFrecuenciaActionPerformed
 
     /**
      * @param args the command line arguments
