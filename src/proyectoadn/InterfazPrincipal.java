@@ -40,9 +40,8 @@ public class InterfazPrincipal extends javax.swing.JFrame {
         btnReporteColisiones = new javax.swing.JButton();
         btnReporteAminoacidos = new javax.swing.JButton();
         btnPatronesFrecuencia = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        txtBuscarPatron = new javax.swing.JTextField();
-        btnBuscarPatron = new javax.swing.JButton();
+        cmbBuscarPatron = new javax.swing.JComboBox<>();
+        BuscarPatron = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -83,18 +82,17 @@ public class InterfazPrincipal extends javax.swing.JFrame {
             }
         });
 
-        jLabel2.setText("Buscar Patrón");
-
-        txtBuscarPatron.addActionListener(new java.awt.event.ActionListener() {
+        cmbBuscarPatron.setEditable(true);
+        cmbBuscarPatron.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBuscarPatronActionPerformed(evt);
+                cmbBuscarPatronActionPerformed(evt);
             }
         });
 
-        btnBuscarPatron.setText("Buscar");
-        btnBuscarPatron.addActionListener(new java.awt.event.ActionListener() {
+        BuscarPatron.setText("Buscar");
+        BuscarPatron.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnBuscarPatronActionPerformed(evt);
+                BuscarPatronActionPerformed(evt);
             }
         });
 
@@ -119,21 +117,19 @@ public class InterfazPrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnCargarADN)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 117, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnReporteColisiones)
-                                    .addComponent(btnReporteAminoacidos)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtBuscarPatron, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(35, 35, 35)
-                                .addComponent(btnBuscarPatron)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                            .addComponent(btnCargarADN)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 117, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnReporteColisiones)
+                            .addComponent(btnReporteAminoacidos))))
                 .addGap(43, 43, 43))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(110, 110, 110)
+                .addComponent(cmbBuscarPatron, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addComponent(BuscarPatron)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -153,13 +149,11 @@ public class InterfazPrincipal extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
+                        .addGap(61, 61, 61)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtBuscarPatron, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnBuscarPatron))
-                        .addContainerGap(92, Short.MAX_VALUE))
+                            .addComponent(cmbBuscarPatron, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(BuscarPatron))
+                        .addContainerGap(94, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnReporteAminoacidos)
                         .addGap(29, 29, 29)
@@ -171,6 +165,7 @@ public class InterfazPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCargarADNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarADNActionPerformed
+    
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Seleccionar Archivo de Secuencia de ADN");
     int userSelection = fileChooser.showOpenDialog(this);
@@ -180,8 +175,18 @@ public class InterfazPrincipal extends javax.swing.JFrame {
         try {
             modelo.cargarSecuenciaADN(archivoSeleccionado);
             JOptionPane.showMessageDialog(this, "Secuencia de ADN cargada y procesada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-           
             txtAreaReporte.setText("Secuencia procesada. Use los botones para generar reportes.");
+
+            
+            cmbBuscarPatron.removeAllItems(); 
+            PatronADN[] patronesUnicos = modelo.getPatronesOrdenadosPorFrecuencia();
+            if (patronesUnicos != null) {
+                for (PatronADN p : patronesUnicos) {
+                    cmbBuscarPatron.addItem(p.getSecuencia()); 
+                }
+            }
+            // *** FIN NUEVO CÓDIGO ***
+
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + ex.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) { 
@@ -199,14 +204,6 @@ public class InterfazPrincipal extends javax.swing.JFrame {
         txtAreaReporte.setText(modelo.generarReporteAminoacidos());
     }//GEN-LAST:event_btnReporteAminoacidosActionPerformed
 
-    private void txtBuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarPatronActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBuscarPatronActionPerformed
-
-    private void btnBuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarPatronActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnBuscarPatronActionPerformed
-
     private void btnPatronesFrecuenciaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPatronesFrecuenciaActionPerformed
         StringBuilder sb = new StringBuilder("Reporte de Patrones por Frecuencia:\n");
     sb.append("--------------------\n");
@@ -220,6 +217,32 @@ public class InterfazPrincipal extends javax.swing.JFrame {
     }
     txtAreaReporte.setText(sb.toString());
     }//GEN-LAST:event_btnPatronesFrecuenciaActionPerformed
+
+    private void cmbBuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbBuscarPatronActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbBuscarPatronActionPerformed
+
+    private void BuscarPatronActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarPatronActionPerformed
+      String secuenciaABuscar = (String) cmbBuscarPatron.getSelectedItem();
+
+    if (secuenciaABuscar == null || secuenciaABuscar.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, ingrese o seleccione una secuencia de patrón para buscar.", "Error de Búsqueda", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    secuenciaABuscar = secuenciaABuscar.trim(); 
+
+    if (secuenciaABuscar.length() != 3) {
+         JOptionPane.showMessageDialog(this, "El patrón de búsqueda debe ser de 3 nucleótidos.", "Formato Inválido", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    PatronADN encontrado = modelo.buscarPatron(secuenciaABuscar);
+    if (encontrado != null) {
+        txtAreaReporte.setText("Patrón encontrado:\n" + encontrado.toString());
+    } else {
+        txtAreaReporte.setText("Patrón '" + secuenciaABuscar.toUpperCase() + "' no encontrado.");
+    }
+    }//GEN-LAST:event_BuscarPatronActionPerformed
 
     /**
      * @param args the command line arguments
@@ -257,16 +280,15 @@ public class InterfazPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnBuscarPatron;
+    private javax.swing.JButton BuscarPatron;
     private javax.swing.JButton btnCargarADN;
     private javax.swing.JButton btnPatronesFrecuencia;
     private javax.swing.JButton btnReporteAminoacidos;
     private javax.swing.JButton btnReporteColisiones;
+    private javax.swing.JComboBox<String> cmbBuscarPatron;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea txtAreaReporte;
-    private javax.swing.JTextField txtBuscarPatron;
     // End of variables declaration//GEN-END:variables
 }
