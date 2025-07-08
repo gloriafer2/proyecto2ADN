@@ -11,24 +11,62 @@ package proyectoadn;
 
 public class MapeadorCodones {
 
+    /**
+     * Una tabla hash que almacena el mapeo de codones de ARN (como claves String)
+     * a sus correspondientes objetos {@link Aminoacido} (como valores).
+     * El tamaño inicial de 67 se elige como un número primo para optimizar la dispersión.
+     */
     private MiHashTable tablaCodonesAminoacidos;
 
+    /**
+     * Constructor de la clase `MapeadorCodones`.
+     * Inicializa la tabla hash {@link MiHashTable} con un tamaño predefinido
+     * y luego llama al método {@code cargarTablaCodones()} para poblar la tabla
+     * con todas las asociaciones de codones y aminoácidos del código genético.
+     */
     public MapeadorCodones() {
-        this.tablaCodonesAminoacidos = new MiHashTable(67);
+        this.tablaCodonesAminoacidos = new MiHashTable(67); // 64 codones posibles, 67 es un buen primo para el tamaño.
         cargarTablaCodones();
     }
 
+    /**
+     * Convierte una secuencia de ADN de 3 bases (un triplete de ADN) a su
+     * correspondiente codón de ARN. Esto se logra reemplazando todas las
+     * ocurrencias de la base 'T' (Timina) por 'U' (Uracilo).
+     *
+     * @param secuenciaADN La secuencia de ADN de 3 bases a convertir.
+     * @return El codón de ARN resultante si la entrada es válida (no nula y de longitud 3),
+     * o {@code null} si la secuencia de ADN de entrada no cumple los requisitos.
+     */
     public String convertirADN_a_ARN(String secuenciaADN) {
         if (secuenciaADN == null || secuenciaADN.length() != 3) {
-            return null;
+            return null; 
         }
-        return secuenciaADN.replace('T', 'U');
+        return secuenciaADN.replace('T', 'U'); // Realiza la conversión T -> U.
     }
 
+    /**
+     * Obtiene el objeto {@link Aminoacido} asociado a un codón de ARN dado.
+     * La búsqueda se realiza en la tabla hash interna, lo que permite una
+     * recuperación eficiente del aminoácido.
+     *
+     * @param codonARN El codón de ARN (String) para el cual se desea obtener el aminoácido.
+     * @return El objeto {@link Aminoacido} correspondiente al codón
+     * si el codón no se encuentra en el código genético mapeado.
+     */
     public Aminoacido getAminoacido(String codonARN) {
         return (Aminoacido) tablaCodonesAminoacidos.buscar(codonARN);
     }
 
+    /**
+     * Carga y mapea todos los codones de ARN a sus respectivos aminoácidos
+     * en la tabla hash 
+     * Este método inicializa los objetos {@link Aminoacido} y los asocia
+     * con todos los codones que los codifican según el código genético estándar.
+     * Cada objeto `Aminoacido` se crea una sola vez y se reutiliza para todos
+     * los codones que lo representan, registrando los codones asociados dentro
+     * del propio objeto `Aminoacido` para facilitar reportes posteriores.
+     */
     private void cargarTablaCodones() {
         // Fenilalanina
         Aminoacido fenilalanina = new Aminoacido("Fenilalanina", "Phe", 'F');
@@ -49,7 +87,7 @@ public class MapeadorCodones {
         tablaCodonesAminoacidos.insertar("CUC", leucina);
         leucina.agregarCodonAsociado("CUA");
         tablaCodonesAminoacidos.insertar("CUA", leucina);
-        leucina.agregarCodonAsociado("CUG");
+        leucina.agregarCodonAsociado("CUG"); // Aquí estaba "leucina.agregarCodonAsociado("CUG");"
         tablaCodonesAminoacidos.insertar("CUG", leucina);
 
         // Isoleucina
